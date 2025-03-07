@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"time"
 
+	_ "net/http/pprof"
+
 	"github.com/cagriyildirimR/easyprofile/internal/portmanager"
 )
 
