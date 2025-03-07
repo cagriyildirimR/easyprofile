@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"runtime"
 	"time"
 
@@ -205,7 +206,18 @@ func openProfilesInBrowser(config *Config, profileDir string, profileType string
 		return
 	}
 
-	cmd := exec.Command("go", "tool", "pprof", "-http", fmt.Sprintf(":%d", port), fmt.Sprintf("%s/*", profileDir))
+	profileFiles, err := filepath.Glob(filepath.Join(profileDir, "*.prof"))
+	if err != nil {
+		fmt.Printf("ERROR: Failed to find %s profile files: %v\n", profileType, err)
+		return
+	}
+
+	if len(profileFiles) == 0 {
+		fmt.Printf("WARNING: No %s profile files found in %s\n", profileType, profileDir)
+		return
+	}
+
+	cmd := exec.Command("go", "tool", "pprof", "-http", fmt.Sprintf(":%d", port), profileFiles[0])
 
 	if err := cmd.Start(); err != nil {
 		fmt.Printf("ERROR: Failed to open %s profiles in browser: %v\n", profileType, err)
